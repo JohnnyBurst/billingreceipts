@@ -138,5 +138,44 @@
     }
   });
 
-  syncForm(); renderItems(); renderSheet();
+  // Saved documents (this browser only)
+  var KEY = "br.docs.v1", curId = null;
+  function load() { try { var d = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(d) ? d : []; } catch (e) { return null; } }
+  function store(list) { try { localStorage.setItem(KEY, JSON.stringify(list)); return true; } catch (e) { return false; } }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function copy(o) { return JSON.parse(JSON.stringify(o)); }
+
+  function renderSaved() {
+    var list = load(), box = $("saved"), ul = $("savedList");
+    if (!box) return;
+    if (list === null) { box.hidden = true; $("saveBtn").hidden = true; return; }
+    box.hidden = !list.length; ul.innerHTML = "";
+    list.slice().sort(function (a, b) { return b.saved - a.saved; }).forEach(function (d) {
+      var t = P.totals(d.st), li = document.createElement("li");
+      var title = (d.st.type === "receipt" ? "Receipt " : "Invoice ") + esc(d.st.num) + " · " + esc(d.st.to || "No client");
+      li.innerHTML = '<div><b>' + title + '</b><span>' + P.money(t.total) + " · " + new Date(d.saved).toLocaleDateString("en-US", { month: "short", day: "numeric" }) + '</span></div>' +
+        '<div class="acts"><button type="button" class="btn sm" data-a="open">Open</button><button type="button" class="btn sm" data-a="dup">Duplicate</button><button type="button" class="btn sm" data-a="del" aria-label="Delete">Delete</button></div>';
+      li.addEventListener("click", function (e) {
+        var a = e.target.getAttribute && e.target.getAttribute("data-a"); if (!a) return;
+        var cur = load() || [];
+        if (a === "open") { st = copy(d.st); curId = d.id; syncForm(); renderItems(); renderSheet(); say("Opened " + st.num + "."); window.scrollTo({ top: 0, behavior: "smooth" }); }
+        if (a === "dup") { var c = copy(d); c.id = uid(); c.saved = Date.now(); c.st.num = c.st.num + "-copy"; cur.push(c); store(cur); renderSaved(); say("Duplicated."); }
+        if (a === "del") { store(cur.filter(function (x) { return x.id !== d.id; })); if (curId === d.id) curId = null; renderSaved(); say("Deleted."); }
+      });
+      ul.appendChild(li);
+    });
+  }
+
+  $("saveBtn").addEventListener("click", function () {
+    var list = load();
+    if (list === null) { say("Saving is blocked in this browser."); return; }
+    var rec = { id: curId || uid(), saved: Date.now(), st: copy(st) };
+    var i = list.findIndex(function (x) { return x.id === rec.id; });
+    if (i >= 0) list[i] = rec; else list.push(rec);
+    curId = rec.id;
+    say(store(list) ? "Saved in this browser. Find it under My documents." : "Could not save. Browser storage may be full or blocked.");
+    renderSaved();
+  });
+
+  syncForm(); renderItems(); renderSheet(); renderSaved();
 })();

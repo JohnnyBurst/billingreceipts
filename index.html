@@ -81,11 +81,16 @@
   </div>
   <div class="sheetbox">
     <div class="row">
-      <button type="button" class="btn primary" id="pdfBtn">Download PDF</button><button type="button" class="btn" id="printBtn">Print</button><button type="button" class="btn" id="copyBtn">Copy text</button>
+      <button type="button" class="btn primary" id="pdfBtn">Download PDF</button><button type="button" class="btn" id="printBtn">Print</button><button type="button" class="btn" id="copyBtn">Copy text</button><button type="button" class="btn" id="saveBtn">Save</button>
     </div>
     <div class="sheet" id="sheet" aria-live="polite"></div>
     <p class="hint" id="copyMsg" style="margin-top:14px" role="status"></p>
     <p class="hint" style="margin-top:6px">Sample details are filled in. Replace them with your own. Nothing leaves your browser.</p>
+    <section class="saved" id="saved" aria-labelledby="savedH" hidden>
+      <h2 id="savedH">My documents</h2>
+      <p class="hint">Saved in this browser only. Clearing site data removes them.</p>
+      <ul id="savedList"></ul>
+    </section>
   </div>
 </div>
 <section class="s" aria-labelledby="how">
