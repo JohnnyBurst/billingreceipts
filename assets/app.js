@@ -138,18 +138,44 @@
     }
   });
 
-  // Saved documents (this browser only)
-  var KEY = "br.docs.v1", curId = null;
+  // Saved documents: browser-only by default, cloud when signed in
+  var KEY = "br.docs.v1", curId = null, cloud = window.BRCloud, cdocs = [], authMsg = "";
   function load() { try { var d = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(d) ? d : []; } catch (e) { return null; } }
   function store(list) { try { localStorage.setItem(KEY, JSON.stringify(list)); return true; } catch (e) { return false; } }
-  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function uuid() { return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) { var r = Math.random() * 16 | 0; return (c === "x" ? r : (r & 3 | 8)).toString(16); }); }
   function copy(o) { return JSON.parse(JSON.stringify(o)); }
+  function online() { return cloud && cloud.signedIn(); }
+
+  function fetchCloud() {
+    return cloud.list().then(function (rows) {
+      cdocs = rows.map(function (r) { return { id: r.id, saved: Date.parse(r.updated_at) || 0, st: r.data && r.data.st }; }).filter(function (d) { return d.st; });
+    });
+  }
+  function docs() { return online() ? cdocs : (load() || []); }
+
+  function renderAuth() {
+    var bar = $("authBar"); if (!bar) return;
+    if (!cloud) { bar.innerHTML = '<p class="hint">Saved in this browser only. Clearing site data removes them.</p>'; return; }
+    if (online()) {
+      bar.innerHTML = '<p class="hint">Synced to your account: <b>' + esc(cloud.email()) + '</b> <button type="button" class="link" id="outBtn">Sign out</button></p>';
+      $("outBtn").addEventListener("click", function () { cloud.signOut(); cdocs = []; curId = null; renderAuth(); renderSaved(); say("Signed out. Saved documents in your account are kept."); });
+    } else {
+      bar.innerHTML = '<p class="hint">Saved in this browser only. Sign in to keep them across devices. No password: we email you a link.</p>' +
+        '<form id="authForm" class="authform"><input type="email" id="authEmail" required autocomplete="email" placeholder="you@example.com" aria-label="Email address"><button class="btn" type="submit">Email me a link</button></form>' +
+        (authMsg ? '<p class="hint" role="status">' + esc(authMsg) + "</p>" : "");
+      $("authForm").addEventListener("submit", function (e) {
+        e.preventDefault(); var em = $("authEmail").value.trim(); if (!em) return;
+        authMsg = "Sending..."; renderAuth();
+        cloud.sendLink(em).then(function () { authMsg = "Check " + em + " for a sign-in link. It opens this page."; renderAuth(); },
+          function (err) { authMsg = "Could not send the link: " + err.message; renderAuth(); });
+      });
+    }
+  }
 
   function renderSaved() {
-    var list = load(), box = $("saved"), ul = $("savedList");
-    if (!box) return;
-    if (list === null) { box.hidden = true; $("saveBtn").hidden = true; return; }
-    box.hidden = !list.length; ul.innerHTML = "";
+    var list = docs(), ul = $("savedList"); if (!ul) return;
+    ul.innerHTML = "";
+    if (!list.length) { ul.innerHTML = '<li class="empty">Nothing saved yet. Press Save above.</li>'; }
     list.slice().sort(function (a, b) { return b.saved - a.saved; }).forEach(function (d) {
       var t = P.totals(d.st), li = document.createElement("li");
       var title = (d.st.type === "receipt" ? "Receipt " : "Invoice ") + esc(d.st.num) + " · " + esc(d.st.to || "No client");
@@ -157,25 +183,53 @@
         '<div class="acts"><button type="button" class="btn sm" data-a="open">Open</button><button type="button" class="btn sm" data-a="dup">Duplicate</button><button type="button" class="btn sm" data-a="del" aria-label="Delete">Delete</button></div>';
       li.addEventListener("click", function (e) {
         var a = e.target.getAttribute && e.target.getAttribute("data-a"); if (!a) return;
-        var cur = load() || [];
         if (a === "open") { st = copy(d.st); curId = d.id; syncForm(); renderItems(); renderSheet(); say("Opened " + st.num + "."); window.scrollTo({ top: 0, behavior: "smooth" }); }
-        if (a === "dup") { var c = copy(d); c.id = uid(); c.saved = Date.now(); c.st.num = c.st.num + "-copy"; cur.push(c); store(cur); renderSaved(); say("Duplicated."); }
-        if (a === "del") { store(cur.filter(function (x) { return x.id !== d.id; })); if (curId === d.id) curId = null; renderSaved(); say("Deleted."); }
+        if (a === "dup") { var c = copy(d.st); c.num = c.num + "-copy"; persist(uuid(), c, "Duplicated."); }
+        if (a === "del") {
+          if (online()) { cloud.remove(d.id).then(function () { cdocs = cdocs.filter(function (x) { return x.id !== d.id; }); if (curId === d.id) curId = null; renderSaved(); say("Deleted."); }, function (er) { say("Could not delete: " + er.message); }); }
+          else { store((load() || []).filter(function (x) { return x.id !== d.id; })); if (curId === d.id) curId = null; renderSaved(); say("Deleted."); }
+        }
       });
       ul.appendChild(li);
     });
   }
 
-  $("saveBtn").addEventListener("click", function () {
+  function persist(id, snapshot, okMsg) {
+    if (online()) {
+      return cloud.save(id, { st: snapshot }).then(function () {
+        var i = cdocs.findIndex(function (x) { return x.id === id; }), rec = { id: id, saved: Date.now(), st: snapshot };
+        if (i >= 0) cdocs[i] = rec; else cdocs.push(rec);
+        renderSaved(); say(okMsg || "Saved to your account.");
+      }, function (er) { say("Could not save to your account: " + er.message); });
+    }
     var list = load();
     if (list === null) { say("Saving is blocked in this browser."); return; }
-    var rec = { id: curId || uid(), saved: Date.now(), st: copy(st) };
-    var i = list.findIndex(function (x) { return x.id === rec.id; });
-    if (i >= 0) list[i] = rec; else list.push(rec);
-    curId = rec.id;
-    say(store(list) ? "Saved in this browser. Find it under My documents." : "Could not save. Browser storage may be full or blocked.");
+    var rec2 = { id: id, saved: Date.now(), st: snapshot }, i2 = list.findIndex(function (x) { return x.id === id; });
+    if (i2 >= 0) list[i2] = rec2; else list.push(rec2);
+    say(store(list) ? (okMsg || "Saved in this browser. Sign in below to keep it across devices.") : "Could not save. Browser storage may be full or blocked.");
     renderSaved();
+  }
+
+  $("saveBtn").addEventListener("click", function () {
+    var id = curId;
+    if (online() && id && !/^[0-9a-f]{8}-[0-9a-f]{4}-/.test(id)) id = null;
+    if (!id) id = online() ? uuid() : (Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+    curId = id; persist(id, copy(st));
   });
+
+  // Move browser-saved documents into the account once, after sign-in
+  function migrate() {
+    var local = load() || []; if (!local.length) return Promise.resolve();
+    return Promise.all(local.map(function (d) { return cloud.save(uuid(), { st: d.st }); })).then(function () {
+      store([]); return fetchCloud().then(function () { say("Moved " + local.length + " saved document" + (local.length === 1 ? "" : "s") + " into your account."); });
+    }, function () {});
+  }
+
+  renderAuth();
+  if (cloud) cloud.init().then(function () {
+    renderAuth();
+    if (online()) return fetchCloud().then(migrate).then(renderSaved);
+  }).catch(function () { renderAuth(); });
 
   syncForm(); renderItems(); renderSheet(); renderSaved();
 })();

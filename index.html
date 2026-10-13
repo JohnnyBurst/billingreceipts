@@ -86,9 +86,9 @@
     <div class="sheet" id="sheet" aria-live="polite"></div>
     <p class="hint" id="copyMsg" style="margin-top:14px" role="status"></p>
     <p class="hint" style="margin-top:6px">Sample details are filled in. Replace them with your own. Nothing leaves your browser.</p>
-    <section class="saved" id="saved" aria-labelledby="savedH" hidden>
+    <section class="saved" id="saved" aria-labelledby="savedH">
       <h2 id="savedH">My documents</h2>
-      <p class="hint">Saved in this browser only. Clearing site data removes them.</p>
+      <div id="authBar" class="authbar"></div>
       <ul id="savedList"></ul>
     </section>
   </div>
@@ -142,6 +142,7 @@
 </div></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <script src="/assets/pdf.js" defer></script>
+<script src="/assets/cloud.js" defer></script>
 <script src="/assets/app.js" defer></script>
 </body>
 </html>
