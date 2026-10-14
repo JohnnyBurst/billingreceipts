@@ -1,0 +1,58 @@
+// Shared helpers for the Stripe functions (Deno / Supabase Edge Functions).
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
+
+async function stripe(path: string, params: Record<string, string>, method = "POST") {
+  const key = Deno.env.get("STRIPE_SECRET_KEY");
+  if (!key) throw new Error("STRIPE_SECRET_KEY is not set");
+  const res = await fetch("https://api.stripe.com/v1" + path, {
+    method,
+    headers: { Authorization: "Bearer " + key, "Content-Type": "application/x-www-form-urlencoded" },
+    body: method === "GET" ? undefined : new URLSearchParams(params).toString(),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error?.message || "Stripe error " + res.status);
+  return data;
+}
+
+// Identify the signed-in user from the request's bearer token.
+async function currentUser(req: Request) {
+  const auth = req.headers.get("Authorization") || "";
+  const r = await fetch(Deno.env.get("SUPABASE_URL") + "/auth/v1/user", {
+    headers: { Authorization: auth, apikey: Deno.env.get("SUPABASE_ANON_KEY") || "" },
+  });
+  if (!r.ok) return null;
+  return await r.json(); // { id, email, ... }
+}
+
+// Service-role PostgREST call (bypasses RLS). Server-side only.
+function admin(path: string, init: RequestInit = {}) {
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  return fetch(Deno.env.get("SUPABASE_URL") + "/rest/v1/" + path, {
+    ...init,
+    headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json", ...(init.headers || {}) },
+  });
+}
+
+// POST with the user's bearer token -> { url } for Stripe's customer portal (cancel, update card, invoices).
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  try {
+    const user = await currentUser(req);
+    if (!user) return json({ error: "Sign in first." }, 401);
+    const p = await (await admin("profiles?select=stripe_customer_id&id=eq." + user.id)).json();
+    const cust = p?.[0]?.stripe_customer_id;
+    if (!cust) return json({ error: "No subscription found." }, 404);
+    const site = Deno.env.get("SITE_URL") || "https://billingreceipts.com";
+    const s = await stripe("/billing_portal/sessions", { customer: cust, return_url: site + "/invoice-generator/" });
+    return json({ url: s.url });
+  } catch (e) {
+    return json({ error: (e as Error).message }, 500);
+  }
+});
