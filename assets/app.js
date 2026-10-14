@@ -97,7 +97,10 @@
   });
 
   var msg = $("copyMsg");
-  function say(s) { msg.textContent = s; }
+  function say(s, linkText) {
+    msg.textContent = s;
+    if (linkText) { msg.appendChild(document.createTextNode(" ")); var l = document.createElement("a"); l.href = "/#pricing"; l.textContent = linkText; msg.appendChild(l); }
+  }
 
   function plain() {
     var t = P.totals(st), rc = st.type === "receipt", L = [];
@@ -189,7 +192,7 @@
       li.addEventListener("click", function (e) {
         var a = e.target.getAttribute && e.target.getAttribute("data-a"); if (!a) return;
         if (a === "open") { st = copy(d.st); curId = d.id; syncForm(); renderItems(); renderSheet(); say("Opened " + st.num + "."); window.scrollTo({ top: 0, behavior: "smooth" }); }
-        if (a === "dup") { if (online() && cdocs.length >= FREE_LIMIT) { say("Free accounts sync up to " + FREE_LIMIT + " documents. Delete one first."); return; }
+        if (a === "dup") { if (online() && cdocs.length >= FREE_LIMIT) { say("Free accounts sync up to " + FREE_LIMIT + " documents. Delete one first.", "See Pro"); return; }
           var c = copy(d.st); c.num = c.num + "-copy"; persist(uuid(), c, "Duplicated."); }
         if (a === "del") {
           if (online()) { cloud.remove(d.id).then(function () { cdocs = cdocs.filter(function (x) { return x.id !== d.id; }); if (curId === d.id) curId = null; renderSaved(); say("Deleted."); }, function (er) { say("Could not delete: " + er.message); }); }
@@ -220,7 +223,7 @@
     var id = curId;
     if (online() && id && !/^[0-9a-f]{8}-[0-9a-f]{4}-/.test(id)) id = null;
     if (online() && !cdocs.some(function (x) { return x.id === id; }) && cdocs.length >= FREE_LIMIT) {
-      say("Free accounts sync up to " + FREE_LIMIT + " documents. Delete one to save another. Pro, with unlimited sync, is coming soon."); return;
+      say("Free accounts sync up to " + FREE_LIMIT + " documents. Delete one to save another, or get unlimited sync with Pro (coming soon).", "See Pro"); return;
     }
     if (!id) id = online() ? uuid() : (Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
     curId = id; persist(id, copy(st));
@@ -240,7 +243,7 @@
     proOn = on;
     ["f-client", "saveClient", "delClient", "f-logo", "rmLogo", "f-nofoot"].forEach(function (id) { $(id).disabled = !on; });
     $("proBox").classList.toggle("locked", !on);
-    $("proNote").textContent = on ? "Your Pro tools are on." : (online() ? "Pro is coming soon. These tools will unlock with a Pro plan." : "Pro is coming soon. Sign in to use these once Pro is available.");
+    $("proNote").innerHTML = on ? "Your Pro tools are on." : (online() ? "These unlock with a Pro plan, coming soon. " : "Sign in to use these once Pro is available. ") + '<a href="/#pricing">See Pro</a>';
     renderClients(); renderSheet();
   }
   function renderClients() {
