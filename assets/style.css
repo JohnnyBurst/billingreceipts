@@ -197,3 +197,5 @@ fieldset.pro.locked{opacity:.7}
 label.chk{display:flex;align-items:center;gap:8px;font-weight:400}
 label.chk input{width:auto}
 .sheet .logo{display:block;max-height:44px;max-width:170px;margin:0 0 10px}
+nav.links a.cta-nav{background:#fff;color:#0C1F52;font-weight:600;padding:6px 14px;border-radius:999px}
+nav.links a.cta-nav:hover{color:#0C1F52;filter:brightness(.94)}
