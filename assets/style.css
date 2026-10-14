@@ -221,3 +221,11 @@ nav.links a.cta-nav:hover{color:#0C1F52;filter:brightness(.94)}
 .howpro .row{margin-top:4px}
 .sheetbox .howpro .btn{background:var(--surface);color:var(--ink);border-color:var(--line)}
 .sheetbox .howpro .btn.primary{background:var(--btn);border-color:var(--btn);color:var(--btn-ink)}
+/* header: bigger brand, bordered nav */
+header.top .brand{font-size:clamp(26px,3.4vw,38px);gap:12px}
+header.top .brand svg{width:1.15em;height:1.15em}
+nav.links{gap:8px;font-size:15px}
+nav.links a{color:var(--band-ink);border:1px solid rgba(255,255,255,.5);border-radius:8px;padding:8px 14px;font-weight:500;line-height:1.2}
+nav.links a:hover{background:rgba(255,255,255,.14);border-color:#fff;color:#fff}
+nav.links a.cta-nav{background:#fff;color:#0C1F52;border-color:#fff;font-weight:700}
+@media(max-width:480px){nav.links{gap:6px;font-size:13.5px}nav.links a{padding:6px 10px}}
