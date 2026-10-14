@@ -211,4 +211,4 @@ nav.links a.cta-nav:hover{color:#0C1F52;filter:brightness(.94)}
 .tier #proCta[hidden]{display:none}
 .row[hidden],fieldset.pro [hidden]{display:none!important}
 
-.saved .hsign{font-weight:500;font-size:15px}.saved .hsign a{color:var(--link)}
+.saved .hsign{font:inherit}.saved .hsign a{color:var(--link);font:inherit}
