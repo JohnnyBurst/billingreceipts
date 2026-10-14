@@ -163,6 +163,7 @@
 
   function renderAuth() {
     var bar = $("authBar"); if (!bar) return;
+    var hs = $("hSign"); if (hs) hs.hidden = !cloud || online();
     if (!cloud) { bar.innerHTML = '<p class="hint">Saved in this browser only. Clearing site data removes them.</p>'; return; }
     if (online()) {
       bar.innerHTML = '<p class="hint">Synced to your account: <b>' + esc(cloud.email()) + '</b> <button type="button" class="link" id="outBtn">Sign out</button></p>';
@@ -323,6 +324,7 @@
     })();
   }
 
+  if ($("hSignLink")) $("hSignLink").addEventListener("click", function (e) { e.preventDefault(); var b = $("authBar"); b.scrollIntoView({ behavior: "smooth", block: "center" }); var i = $("authEmail"); if (i) i.focus({ preventScroll: true }); });
   renderAuth();
   if (cloud) cloud.init().then(function () {
     renderAuth();
