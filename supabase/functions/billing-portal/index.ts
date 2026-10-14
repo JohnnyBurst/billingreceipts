@@ -24,19 +24,23 @@ async function stripe(path: string, params: Record<string, string>, method = "PO
 async function currentUser(req: Request) {
   const auth = req.headers.get("Authorization") || "";
   const r = await fetch(Deno.env.get("SUPABASE_URL") + "/auth/v1/user", {
-    headers: { Authorization: auth, apikey: Deno.env.get("SUPABASE_ANON_KEY") || "" },
+    headers: { Authorization: auth, apikey: Deno.env.get("SUPABASE_ANON_KEY") || "sb_publishable_F7J1zBCig49ylQWYBrMmsg_GtZ4A1RT" },
   });
   if (!r.ok) return null;
   return await r.json(); // { id, email, ... }
 }
 
-// Service-role PostgREST call (bypasses RLS). Server-side only.
+// Service-role PostgREST call (bypasses RLS). Server-side only. Works with legacy or new-style secret keys.
+function serviceKey(): string {
+  const legacy = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (legacy) return legacy;
+  try { const j = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}"); return j.default || (Object.values(j)[0] as string) || ""; } catch { return ""; }
+}
 function admin(path: string, init: RequestInit = {}) {
-  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  return fetch(Deno.env.get("SUPABASE_URL") + "/rest/v1/" + path, {
-    ...init,
-    headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json", ...(init.headers || {}) },
-  });
+  const key = serviceKey();
+  const h: Record<string, string> = { apikey: key, "Content-Type": "application/json", ...((init.headers as Record<string, string>) || {}) };
+  if (key.startsWith("eyJ")) h.Authorization = "Bearer " + key;
+  return fetch(Deno.env.get("SUPABASE_URL") + "/rest/v1/" + path, { ...init, headers: h });
 }
 
 // POST with the user's bearer token -> { url } for Stripe's customer portal (cancel, update card, invoices).
