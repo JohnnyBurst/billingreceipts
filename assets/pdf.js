@@ -44,6 +44,14 @@
       return yy + 22;
     }
 
+    // Logo (Pro)
+    if (st.logo) {
+      try {
+        var lh = Math.min(36, st.logoH || 36), lw = lh * ((st.logoW || 1) / (st.logoH || 1));
+        if (lw > 140) { lw = 140; lh = lw * ((st.logoH || 1) / (st.logoW || 1)); }
+        doc.addImage(st.logo, "PNG", M, 28, lw, lh);
+      } catch (e) {}
+    }
     // Title and meta
     doc.setFont("helvetica", "bold"); doc.setFontSize(28); doc.setTextColor(INK[0], INK[1], INK[2]);
     txt(rc ? "Receipt" : "Invoice", M, 84);
@@ -114,7 +122,7 @@
     for (var p = 1; p <= n; p++) {
       doc.setPage(p);
       doc.setFont("courier", "normal"); doc.setFontSize(8); doc.setTextColor(MUTE[0], MUTE[1], MUTE[2]);
-      doc.text("Created with BillingReceipts - billingreceipts.com", M, H - 36);
+      if (!st.noFoot) doc.text("Created with BillingReceipts - billingreceipts.com", M, H - 36);
       doc.text("Page " + p + " of " + n, R, H - 36, { align: "right" });
     }
     return doc;

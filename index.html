@@ -78,6 +78,14 @@
     <fieldset><legend>Notes</legend>
       <label for="f-notes">Terms or message<textarea id="f-notes"></textarea></label>
     </fieldset>
+    <fieldset class="pro" id="proBox"><legend>Pro tools <span class="badge">Pro</span></legend>
+      <p class="hint" id="proNote"></p>
+      <label for="f-client">Saved client<select id="f-client" disabled><option value="">Choose a saved client</option></select></label>
+      <div class="row"><button type="button" class="btn sm" id="saveClient" disabled>Save this client</button><button type="button" class="btn sm" id="delClient" disabled>Remove selected</button></div>
+      <label for="f-logo">Your logo (PNG or JPG)<input id="f-logo" type="file" accept="image/png,image/jpeg" disabled></label>
+      <div class="row"><button type="button" class="btn sm" id="rmLogo" disabled>Remove logo</button></div>
+      <label class="chk" for="f-nofoot"><input id="f-nofoot" type="checkbox" disabled> Remove the BillingReceipts footer</label>
+    </fieldset>
   </div>
   <div class="sheetbox">
     <div class="row">

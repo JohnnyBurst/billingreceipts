@@ -188,3 +188,12 @@ footer.foot .brand{margin-bottom:10px}
 .saved .link{font:inherit;background:none;border:0;padding:0 0 0 6px;color:var(--ink);text-decoration:underline;cursor:pointer}
 .saved li.empty{background:none;border-style:dashed;color:var(--ink-2);font-size:13px}
 .tier .alt{margin:-4px 0 10px;font-size:13px;opacity:.8}
+
+/* Pro tools */
+.badge{font-family:var(--font-body);font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:var(--btn);color:var(--btn-ink);border-radius:999px;padding:2px 7px;margin-left:6px;vertical-align:2px}
+fieldset.pro{border:1px dashed var(--line);border-radius:10px;padding:12px}
+fieldset.pro.locked{opacity:.7}
+.btn.sm{padding:5px 10px;font-size:13px}
+label.chk{display:flex;align-items:center;gap:8px;font-weight:400}
+label.chk input{width:auto}
+.sheet .logo{display:block;max-height:44px;max-width:170px;margin:0 0 10px}

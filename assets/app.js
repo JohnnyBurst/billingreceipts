@@ -11,7 +11,8 @@
     to: "Dana Whitfield", toAddr: "92 Linden Ave, Austin, TX 78704", num: "INV-0042",
     date: iso(today), due: iso(due), method: "Card", tax: 0,
     items: [{ d: "Deep clean, 3 bedroom house", q: 1, r: 240 }, { d: "Inside oven and fridge", q: 2, r: 35 }],
-    notes: "Payment due within 14 days. Thank you for your business."
+    notes: "Payment due within 14 days. Thank you for your business.",
+    logo: "", logoW: 0, logoH: 0, noFoot: false
   };
   try {
     var pe = $("preset");
@@ -23,6 +24,10 @@
   } catch (e) {}
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+  var proOn = false;
+  function logoOk() { return proOn && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+\/=]+$/.test(st.logo || "") && st.logoW > 0; }
+  function pdfState() { var s = Object.assign({}, st); if (!logoOk()) s.logo = ""; s.noFoot = !!(proOn && st.noFoot); return s; }
 
   function renderItems() {
     var box = $("items"); box.innerHTML = "";
@@ -43,14 +48,14 @@
   }
 
   function renderSheet() {
-    var t = P.totals(st), rc = st.type === "receipt";
+    var t = P.totals(st), rc = st.type === "receipt", lg = logoOk();
     var rows = st.items.map(function (i) {
       var q = +i.q || 0, r = +i.r || 0;
       return "<tr><td>" + esc(i.d || "Item") + "</td><td>" + q + "</td><td>" + P.money(r) + "</td><td>" + P.money(q * r) + "</td></tr>";
     }).join("");
     $("sheet").innerHTML =
       '<div class="stamp"' + (rc ? "" : " hidden") + ">PAID</div>" +
-      '<div class="sh"><div><div class="kind">' + (rc ? "Receipt" : "Invoice") + "</div></div>" +
+      '<div class="sh"><div>' + (lg ? '<img class="logo" alt="" src="' + st.logo + '">' : "") + '<div class="kind">' + (rc ? "Receipt" : "Invoice") + "</div></div>" +
       '<div class="num"><div><span>No.</span> ' + esc(st.num) + "</div><div><span>Date</span> " + esc(P.fdate(st.date)) + "</div>" +
       (rc ? "<div><span>Paid by</span> " + esc(st.method) + "</div>" : "<div><span>Due</span> " + esc(P.fdate(st.due)) + "</div>") + "</div></div>" +
       '<div class="parties"><div><b>From</b>' + esc(st.from) + "<br>" + esc(st.fromAddr) + "</div><div><b>" + (rc ? "Received from" : "Bill to") + "</b>" + esc(st.to) + "<br>" + esc(st.toAddr) + "</div></div>" +
@@ -59,13 +64,13 @@
       ((+st.tax) ? "<div><span>Tax (" + (+st.tax) + "%)</span><span>" + P.money(t.tax) + "</span></div>" : "") +
       '<div class="grand"><span>' + (rc ? "Total paid" : "Total due") + "</span><span>" + P.money(t.total) + "</span></div></div>" +
       (st.notes ? '<div class="notes">' + esc(st.notes) + "</div>" : "") +
-      '<div class="mark"><span>billingreceipts.com</span><span>Created with BillingReceipts</span></div>';
+      (proOn && st.noFoot ? "" : '<div class="mark"><span>billingreceipts.com</span><span>Created with BillingReceipts</span></div>');
   }
 
   function syncForm() {
     $("f-from").value = st.from; $("f-fromAddr").value = st.fromAddr; $("f-to").value = st.to; $("f-toAddr").value = st.toAddr;
     $("f-num").value = st.num; $("f-date").value = st.date; $("f-due").value = st.due; $("f-method").value = st.method;
-    $("f-tax").value = st.tax; $("f-notes").value = st.notes;
+    $("f-tax").value = st.tax; $("f-notes").value = st.notes; $("f-nofoot").checked = !!st.noFoot;
     var rc = st.type === "receipt";
     $("t-invoice").setAttribute("aria-pressed", rc ? "false" : "true");
     $("t-receipt").setAttribute("aria-pressed", rc ? "true" : "false");
@@ -129,7 +134,7 @@
     if (!lib) { say("The PDF library did not load. Use Print, then choose Save as PDF."); return; }
     try {
       var doc = new lib({ unit: "pt", format: "letter" });
-      P.buildPdf(doc, st);
+      P.buildPdf(doc, pdfState());
       var name = (st.type + "-" + (st.num || "document")).replace(/[^A-Za-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") + ".pdf";
       doc.save(name);
       say("Downloaded " + name + ".");
@@ -158,7 +163,7 @@
     if (!cloud) { bar.innerHTML = '<p class="hint">Saved in this browser only. Clearing site data removes them.</p>'; return; }
     if (online()) {
       bar.innerHTML = '<p class="hint">Synced to your account: <b>' + esc(cloud.email()) + '</b> <button type="button" class="link" id="outBtn">Sign out</button></p>';
-      $("outBtn").addEventListener("click", function () { cloud.signOut(); cdocs = []; curId = null; renderAuth(); renderSaved(); say("Signed out. Saved documents in your account are kept."); });
+      $("outBtn").addEventListener("click", function () { cloud.signOut(); cdocs = []; curId = null; renderAuth(); renderSaved(); refreshPro(); say("Signed out. Saved documents in your account are kept."); });
     } else {
       bar.innerHTML = '<p class="hint">Saved in this browser only. Sign in to keep them across devices. No password: we email you a link.</p>' +
         '<form id="authForm" class="authform"><input type="email" id="authEmail" required autocomplete="email" placeholder="you@example.com" aria-label="Email address"><button class="btn" type="submit">Email me a link</button></form>' +
@@ -229,10 +234,74 @@
     }, function () {});
   }
 
+  // Pro tools: saved clients, logo, footer removal (unlocked by plan = pro)
+  var clients = [], LK = "br.logo.v1";
+  function setPro(on) {
+    proOn = on;
+    ["f-client", "saveClient", "delClient", "f-logo", "rmLogo", "f-nofoot"].forEach(function (id) { $(id).disabled = !on; });
+    $("proBox").classList.toggle("locked", !on);
+    $("proNote").textContent = on ? "Your Pro tools are on." : (online() ? "Pro is coming soon. These tools will unlock with a Pro plan." : "Pro is coming soon. Sign in to use these once Pro is available.");
+    renderClients(); renderSheet();
+  }
+  function renderClients() {
+    var sel = $("f-client"), cur = sel.value;
+    sel.innerHTML = '<option value="">Choose a saved client</option>' + clients.map(function (c) { return '<option value="' + esc(c.id) + '">' + esc(c.data.name) + "</option>"; }).join("");
+    sel.value = cur;
+  }
+  function refreshPro() {
+    if (!online()) { clients = []; setPro(false); return Promise.resolve(); }
+    return cloud.plan().then(function (pl) {
+      if (pl !== "pro") { setPro(false); return; }
+      return cloud.clients().then(function (rows) { clients = rows.filter(function (r) { return r.data && r.data.name; }); }).then(function () {
+        setPro(true);
+        try { var lg = JSON.parse(localStorage.getItem(LK) || "null"); if (lg && !st.logo) { st.logo = lg.u; st.logoW = lg.w; st.logoH = lg.h; renderSheet(); } } catch (e) {}
+      });
+    }).catch(function () { setPro(false); });
+  }
+  $("f-client").addEventListener("change", function () {
+    var c = clients.find(function (x) { return x.id === $("f-client").value; }); if (!c) return;
+    st.to = c.data.name; st.toAddr = c.data.addr || ""; syncForm(); renderSheet();
+  });
+  $("saveClient").addEventListener("click", function () {
+    if (!st.to.trim()) { say("Enter a client name first."); return; }
+    var ex = clients.find(function (x) { return x.data.name.toLowerCase() === st.to.trim().toLowerCase(); });
+    var id = ex ? ex.id : uuid(), data = { name: st.to.trim(), addr: st.toAddr };
+    cloud.saveClient(id, data).then(function () {
+      if (ex) ex.data = data; else clients.unshift({ id: id, data: data });
+      renderClients(); $("f-client").value = id; say("Client saved.");
+    }, function (e) { say("Could not save client: " + e.message); });
+  });
+  $("delClient").addEventListener("click", function () {
+    var id = $("f-client").value; if (!id) { say("Choose a client to remove."); return; }
+    cloud.removeClient(id).then(function () { clients = clients.filter(function (x) { return x.id !== id; }); renderClients(); say("Client removed."); }, function (e) { say("Could not remove: " + e.message); });
+  });
+  $("f-nofoot").addEventListener("change", function () { st.noFoot = $("f-nofoot").checked; renderSheet(); });
+  $("f-logo").addEventListener("change", function () {
+    var f = $("f-logo").files && $("f-logo").files[0]; if (!f) return;
+    if (!/^image\/(png|jpeg)$/.test(f.type)) { say("Use a PNG or JPG image."); return; }
+    if (f.size > 4e6) { say("That image is too large. Use one under 4 MB."); return; }
+    var rd = new FileReader();
+    rd.onload = function () {
+      var im = new Image();
+      im.onload = function () {
+        var k = Math.min(1, 360 / im.width, 120 / im.height), w = Math.max(1, Math.round(im.width * k)), h = Math.max(1, Math.round(im.height * k));
+        var cv = document.createElement("canvas"); cv.width = w; cv.height = h; cv.getContext("2d").drawImage(im, 0, 0, w, h);
+        st.logo = cv.toDataURL("image/png"); st.logoW = w; st.logoH = h;
+        try { localStorage.setItem(LK, JSON.stringify({ u: st.logo, w: w, h: h })); } catch (e) {}
+        renderSheet(); say("Logo added.");
+      };
+      im.onerror = function () { say("Could not read that image."); };
+      im.src = rd.result;
+    };
+    rd.readAsDataURL(f);
+  });
+  $("rmLogo").addEventListener("click", function () { st.logo = ""; st.logoW = st.logoH = 0; try { localStorage.removeItem(LK); } catch (e) {} $("f-logo").value = ""; renderSheet(); say("Logo removed."); });
+  setPro(false);
+
   renderAuth();
   if (cloud) cloud.init().then(function () {
     renderAuth();
-    if (online()) return fetchCloud().then(migrate).then(renderSaved);
+    if (online()) return fetchCloud().then(migrate).then(renderSaved).then(refreshPro);
   }).catch(function () { renderAuth(); });
 
   syncForm(); renderItems(); renderSheet(); renderSaved();

@@ -70,6 +70,18 @@
         return fx("/rest/v1/documents?on_conflict=id", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ id: id, data: data, updated_at: new Date().toISOString() }) }, true);
       });
     },
+    plan: function () {
+      return refresh().then(function () { return fx("/rest/v1/profiles?select=plan", {}, true); }).then(function (r) { return (r && r[0] && r[0].plan) || "free"; });
+    },
+    clients: function () {
+      return refresh().then(function () { return fx("/rest/v1/clients?select=id,data&order=updated_at.desc", {}, true); });
+    },
+    saveClient: function (id, data) {
+      return refresh().then(function () { return fx("/rest/v1/clients?on_conflict=id", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ id: id, data: data, updated_at: new Date().toISOString() }) }, true); });
+    },
+    removeClient: function (id) {
+      return refresh().then(function () { return fx("/rest/v1/clients?id=eq." + encodeURIComponent(id), { method: "DELETE" }, true); });
+    },
     remove: function (id) {
       return refresh().then(function () { return fx("/rest/v1/documents?id=eq." + encodeURIComponent(id), { method: "DELETE" }, true); });
     }
