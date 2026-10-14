@@ -187,3 +187,4 @@ footer.foot .brand{margin-bottom:10px}
 .authform .btn,.sheetbox .authform .btn{background:var(--btn);border-color:var(--btn);color:var(--btn-ink)}
 .saved .link{font:inherit;background:none;border:0;padding:0 0 0 6px;color:var(--ink);text-decoration:underline;cursor:pointer}
 .saved li.empty{background:none;border-style:dashed;color:var(--ink-2);font-size:13px}
+.tier .alt{margin:-4px 0 10px;font-size:13px;opacity:.8}

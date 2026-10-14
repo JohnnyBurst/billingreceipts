@@ -139,7 +139,7 @@
   });
 
   // Saved documents: browser-only by default, cloud when signed in
-  var KEY = "br.docs.v1", curId = null, cloud = window.BRCloud, cdocs = [], authMsg = "";
+  var FREE_LIMIT = 10, KEY = "br.docs.v1", curId = null, cloud = window.BRCloud, cdocs = [], authMsg = "";
   function load() { try { var d = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(d) ? d : []; } catch (e) { return null; } }
   function store(list) { try { localStorage.setItem(KEY, JSON.stringify(list)); return true; } catch (e) { return false; } }
   function uuid() { return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) { var r = Math.random() * 16 | 0; return (c === "x" ? r : (r & 3 | 8)).toString(16); }); }
@@ -184,7 +184,8 @@
       li.addEventListener("click", function (e) {
         var a = e.target.getAttribute && e.target.getAttribute("data-a"); if (!a) return;
         if (a === "open") { st = copy(d.st); curId = d.id; syncForm(); renderItems(); renderSheet(); say("Opened " + st.num + "."); window.scrollTo({ top: 0, behavior: "smooth" }); }
-        if (a === "dup") { var c = copy(d.st); c.num = c.num + "-copy"; persist(uuid(), c, "Duplicated."); }
+        if (a === "dup") { if (online() && cdocs.length >= FREE_LIMIT) { say("Free accounts sync up to " + FREE_LIMIT + " documents. Delete one first."); return; }
+          var c = copy(d.st); c.num = c.num + "-copy"; persist(uuid(), c, "Duplicated."); }
         if (a === "del") {
           if (online()) { cloud.remove(d.id).then(function () { cdocs = cdocs.filter(function (x) { return x.id !== d.id; }); if (curId === d.id) curId = null; renderSaved(); say("Deleted."); }, function (er) { say("Could not delete: " + er.message); }); }
           else { store((load() || []).filter(function (x) { return x.id !== d.id; })); if (curId === d.id) curId = null; renderSaved(); say("Deleted."); }
@@ -213,6 +214,9 @@
   $("saveBtn").addEventListener("click", function () {
     var id = curId;
     if (online() && id && !/^[0-9a-f]{8}-[0-9a-f]{4}-/.test(id)) id = null;
+    if (online() && !cdocs.some(function (x) { return x.id === id; }) && cdocs.length >= FREE_LIMIT) {
+      say("Free accounts sync up to " + FREE_LIMIT + " documents. Delete one to save another. Pro, with unlimited sync, is coming soon."); return;
+    }
     if (!id) id = online() ? uuid() : (Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
     curId = id; persist(id, copy(st));
   });
