@@ -25,6 +25,11 @@
     });
   }
 
+  function fn(name, body) {
+    return fetch(URL_ + "/functions/v1/" + name, { method: "POST", headers: { apikey: KEY, Authorization: "Bearer " + (session ? session.access_token : ""), "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok || !j.url) throw new Error(j.error || ("HTTP " + r.status)); return j; }); });
+  }
+
   function setFrom(j) {
     session = { access_token: j.access_token, refresh_token: j.refresh_token, expires_at: j.expires_at || (Math.floor(Date.now() / 1000) + (+j.expires_in || 3600)), email: (j.user && j.user.email) || (session && session.email) || "" };
     wr(session);
@@ -69,6 +74,12 @@
       return refresh().then(function () {
         return fx("/rest/v1/documents?on_conflict=id", { method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify({ id: id, data: data, updated_at: new Date().toISOString() }) }, true);
       });
+    },
+    checkout: function (interval) {
+      return refresh().then(function () { return fn("create-checkout", { interval: interval }); }).then(function (r) { return r.url; });
+    },
+    portal: function () {
+      return refresh().then(function () { return fn("billing-portal", {}); }).then(function (r) { return r.url; });
     },
     plan: function () {
       return refresh().then(function () { return fx("/rest/v1/profiles?select=plan", {}, true); }).then(function (r) { return (r && r[0] && r[0].plan) || "free"; });

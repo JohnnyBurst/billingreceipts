@@ -200,3 +200,6 @@ label.chk input{width:auto}
 nav.links a.cta-nav{background:#fff;color:#0C1F52;font-weight:600;padding:6px 14px;border-radius:999px}
 nav.links a.cta-nav:hover{color:#0C1F52;filter:brightness(.94)}
 .promo{margin-top:6px}.promo a,.hint a,.saved .hint a{color:inherit;text-decoration:underline}
+.tier.feat .btn.primary{background:#fff;border-color:#fff;color:#0C1F52;margin:0 0 12px}
+.tier #proCta[hidden]{display:none}
+.row[hidden],fieldset.pro [hidden]{display:none!important}

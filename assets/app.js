@@ -239,8 +239,16 @@
 
   // Pro tools: saved clients, logo, footer removal (unlocked by plan = pro)
   var clients = [], LK = "br.logo.v1";
+  var PRO_PUBLIC = false; // flip to true when Pro goes on sale
+  function testFlag() {
+    try { if (/[?&]pro=1/.test(location.search)) localStorage.setItem("br.pro.test", "1"); return localStorage.getItem("br.pro.test") === "1"; }
+    catch (e) { return /[?&]pro=1/.test(location.search); }
+  }
   function setPro(on) {
     proOn = on;
+    var showBuy = PRO_PUBLIC || testFlag();
+    $("upRow").hidden = !(showBuy && online() && !on);
+    $("mgRow").hidden = !(online() && on);
     ["f-client", "saveClient", "delClient", "f-logo", "rmLogo", "f-nofoot"].forEach(function (id) { $(id).disabled = !on; });
     $("proBox").classList.toggle("locked", !on);
     $("proNote").innerHTML = on ? "Your Pro tools are on." : (online() ? "These unlock with a Pro plan, coming soon. " : "Sign in to use these once Pro is available. ") + '<a href="/#pricing">See Pro</a>';
@@ -278,6 +286,10 @@
     var id = $("f-client").value; if (!id) { say("Choose a client to remove."); return; }
     cloud.removeClient(id).then(function () { clients = clients.filter(function (x) { return x.id !== id; }); renderClients(); say("Client removed."); }, function (e) { say("Could not remove: " + e.message); });
   });
+  function go(p, msgText) { say(msgText); p.then(function (u) { location.href = u; }, function (e) { say("Could not open that page: " + e.message); }); }
+  $("upM").addEventListener("click", function () { go(cloud.checkout("month"), "Opening secure checkout..."); });
+  $("upY").addEventListener("click", function () { go(cloud.checkout("year"), "Opening secure checkout..."); });
+  $("mgBtn").addEventListener("click", function () { go(cloud.portal(), "Opening your billing page..."); });
   $("f-nofoot").addEventListener("change", function () { st.noFoot = $("f-nofoot").checked; renderSheet(); });
   $("f-logo").addEventListener("change", function () {
     var f = $("f-logo").files && $("f-logo").files[0]; if (!f) return;
@@ -300,6 +312,14 @@
   });
   $("rmLogo").addEventListener("click", function () { st.logo = ""; st.logoW = st.logoH = 0; try { localStorage.removeItem(LK); } catch (e) {} $("f-logo").value = ""; renderSheet(); say("Logo removed."); });
   setPro(false);
+  if (/[?&]upgraded=1/.test(location.search)) {
+    say("Thanks! Activating your Pro plan...");
+    var tries = 0;
+    (function poll() {
+      if (!online()) { if (tries++ < 10) setTimeout(poll, 1000); return; }
+      refreshPro().then(function () { if (proOn) { say("You're on Pro. Your Pro tools are on."); history.replaceState(null, "", location.pathname); } else if (tries++ < 8) setTimeout(poll, 2500); else say("Payment received. Your plan may take a minute to appear. Refresh if it doesn't."); });
+    })();
+  }
 
   renderAuth();
   if (cloud) cloud.init().then(function () {
