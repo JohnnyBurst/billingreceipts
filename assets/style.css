@@ -192,7 +192,14 @@ footer.foot .brand{margin-bottom:10px}
 /* Pro tools */
 .badge{font-family:var(--font-body);font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:var(--btn);color:var(--btn-ink);border-radius:999px;padding:2px 7px;margin-left:6px;vertical-align:2px}
 fieldset.pro{border:1px dashed var(--line);border-radius:10px;padding:12px}
-fieldset.pro.locked{opacity:.7}
+fieldset.pro.locked label,fieldset.pro.locked .row:not(#upRow):not(#mgRow){opacity:.5}
+fieldset.pro.locked .badge{background:var(--ink-2)}
+fieldset.pro.on{border:1.5px solid var(--paid);background:var(--paid-soft)}
+fieldset.pro.on .badge{background:var(--paid);color:#fff}
+fieldset.pro.on label{color:var(--ink);font-weight:600}
+fieldset.pro.on #proNote{color:var(--paid);font-weight:600}
+fieldset.pro.on input,fieldset.pro.on select{background:var(--surface);border-color:var(--paid)}
+fieldset.pro.on .btn.sm{background:var(--surface);color:var(--ink);border-color:var(--paid)}
 .btn.sm{padding:5px 10px;font-size:13px}
 label.chk{display:flex;align-items:center;gap:8px;font-weight:400}
 label.chk input{width:auto}

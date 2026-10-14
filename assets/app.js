@@ -251,7 +251,9 @@
     $("mgRow").hidden = !(online() && on);
     ["f-client", "saveClient", "delClient", "f-logo", "rmLogo", "f-nofoot"].forEach(function (id) { $(id).disabled = !on; });
     $("proBox").classList.toggle("locked", !on);
-    $("proNote").innerHTML = on ? "Your Pro tools are on." : (online() ? "These unlock with a Pro plan, coming soon. " : "Sign in to use these once Pro is available. ") + '<a href="/#pricing">See Pro</a>';
+    $("proBox").classList.toggle("on", on);
+    $("proBadge").textContent = on ? "Active" : "Locked";
+    $("proNote").innerHTML = on ? "\u2713 Pro is active. These tools are ready to use." : (online() ? "These unlock with a Pro plan, coming soon. " : "Sign in to use these once Pro is available. ") + '<a href="/#pricing">See Pro</a>';
     renderClients(); renderSheet();
   }
   function renderClients() {
