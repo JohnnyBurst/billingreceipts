@@ -99,7 +99,7 @@
   var msg = $("copyMsg");
   function say(s, linkText) {
     msg.textContent = s;
-    if (linkText) { msg.appendChild(document.createTextNode(" ")); var l = document.createElement("a"); l.href = "/#pricing"; l.textContent = linkText; msg.appendChild(l); }
+    if (linkText) { msg.appendChild(document.createTextNode(" ")); var l = document.createElement("a"); l.href = "#howPro"; l.textContent = linkText; msg.appendChild(l); }
   }
 
   function plain() {
@@ -193,7 +193,7 @@
       li.addEventListener("click", function (e) {
         var a = e.target.getAttribute && e.target.getAttribute("data-a"); if (!a) return;
         if (a === "open") { st = copy(d.st); curId = d.id; syncForm(); renderItems(); renderSheet(); say("Opened " + st.num + "."); window.scrollTo({ top: 0, behavior: "smooth" }); }
-        if (a === "dup") { if (online() && cdocs.length >= FREE_LIMIT) { say("Free accounts sync up to " + FREE_LIMIT + " documents. Delete one first.", "See Pro"); return; }
+        if (a === "dup") { if (online() && cdocs.length >= FREE_LIMIT) { say("Free accounts sync up to " + FREE_LIMIT + " documents. Delete one first.", "How to get Pro"); return; }
           var c = copy(d.st); c.num = c.num + "-copy"; persist(uuid(), c, "Duplicated."); }
         if (a === "del") {
           if (online()) { cloud.remove(d.id).then(function () { cdocs = cdocs.filter(function (x) { return x.id !== d.id; }); if (curId === d.id) curId = null; renderSaved(); say("Deleted."); }, function (er) { say("Could not delete: " + er.message); }); }
@@ -224,7 +224,7 @@
     var id = curId;
     if (online() && id && !/^[0-9a-f]{8}-[0-9a-f]{4}-/.test(id)) id = null;
     if (online() && !cdocs.some(function (x) { return x.id === id; }) && cdocs.length >= FREE_LIMIT) {
-      say("Free accounts sync up to " + FREE_LIMIT + " documents. Delete one to save another, or get unlimited sync with Pro (coming soon).", "See Pro"); return;
+      say("Free accounts sync up to " + FREE_LIMIT + " documents. Delete one to save another, or get unlimited sync with Pro (coming soon).", "How to get Pro"); return;
     }
     if (!id) id = online() ? uuid() : (Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
     curId = id; persist(id, copy(st));
@@ -250,11 +250,16 @@
     var showBuy = PRO_PUBLIC || testFlag();
     $("upRow").hidden = !(showBuy && online() && !on);
     $("mgRow").hidden = !(online() && on);
+    var hp = $("howPro"); if (hp) {
+      hp.hidden = on;
+      $("howNote").textContent = showBuy ? (online() ? "You are signed in. Pick a plan below." : "Start with step 1.") : "Pro goes on sale soon. These are the steps.";
+      $("hpRow").hidden = !(showBuy && online() && !on);
+    }
     ["f-client", "saveClient", "delClient", "f-logo", "rmLogo", "f-nofoot"].forEach(function (id) { $(id).disabled = !on; });
     $("proBox").classList.toggle("locked", !on);
     $("proBox").classList.toggle("on", on);
     $("proBadge").textContent = on ? "Active" : "Locked";
-    $("proNote").innerHTML = on ? "\u2713 Pro is active. These tools are ready to use." : (online() ? "These unlock with a Pro plan, coming soon. " : "Sign in to use these once Pro is available. ") + '<a href="/#pricing">See Pro</a>';
+    $("proNote").innerHTML = on ? "\u2713 Pro is active. These tools are ready to use." : (online() ? "These unlock with a Pro plan, coming soon. " : "Sign in to use these once Pro is available. ") + '<a href="#howPro">How to get Pro</a>';
     renderClients(); renderSheet();
   }
   function renderClients() {
@@ -292,6 +297,9 @@
   function go(p, msgText) { say(msgText); p.then(function (u) { location.href = u; }, function (e) { say("Could not open that page: " + e.message); }); }
   $("upM").addEventListener("click", function () { go(cloud.checkout("month"), "Opening secure checkout..."); });
   $("upY").addEventListener("click", function () { go(cloud.checkout("year"), "Opening secure checkout..."); });
+  $("hpM").addEventListener("click", function () { go(cloud.checkout("month"), "Opening secure checkout..."); });
+  $("hpY").addEventListener("click", function () { go(cloud.checkout("year"), "Opening secure checkout..."); });
+  $("hpSign").addEventListener("click", function (e) { e.preventDefault(); if (online()) { say("You are already signed in."); return; } var b = $("authBar"); b.scrollIntoView({ behavior: "smooth", block: "center" }); var i = $("authEmail"); if (i) i.focus({ preventScroll: true }); });
   $("mgBtn").addEventListener("click", function () { go(cloud.portal(), "Opening your billing page..."); });
   $("f-nofoot").addEventListener("change", function () { st.noFoot = $("f-nofoot").checked; renderSheet(); });
   $("f-logo").addEventListener("change", function () {

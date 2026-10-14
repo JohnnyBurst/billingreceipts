@@ -212,3 +212,12 @@ nav.links a.cta-nav:hover{color:#0C1F52;filter:brightness(.94)}
 .row[hidden],fieldset.pro [hidden]{display:none!important}
 
 .saved .hsign{font:inherit}.saved .hsign a{color:var(--link);font:inherit}
+
+.howpro{margin-top:28px;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:16px 18px;scroll-margin-top:16px}
+.howpro[hidden]{display:none}
+.howpro h2{font-family:var(--font-display);font-size:18px;margin:0 0 6px;color:var(--ink)}
+.howpro ol{margin:10px 0 12px;padding-left:20px;display:grid;gap:8px;font-size:14px;color:var(--ink-2)}
+.howpro li b{color:var(--ink)}
+.howpro .row{margin-top:4px}
+.sheetbox .howpro .btn{background:var(--surface);color:var(--ink);border-color:var(--line)}
+.sheetbox .howpro .btn.primary{background:var(--btn);border-color:var(--btn);color:var(--btn-ink)}
