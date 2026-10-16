@@ -44,7 +44,15 @@
     history.replaceState(null, "", location.pathname + location.search);
     if (!at || !rt) return Promise.resolve();
     session = { access_token: at, refresh_token: rt, expires_at: +p.get("expires_at") || (Math.floor(Date.now() / 1000) + (+p.get("expires_in") || 3600)), email: "" };
-    return fx("/auth/v1/user", {}, true).then(function (u) { session.email = u.email || ""; wr(session); }).catch(function () { session = null; wr(null); });
+    // Guard against login CSRF: a link someone else crafted would sign this browser into THEIR account.
+    var asked = 0; try { asked = +localStorage.getItem("br.auth.pending") || 0; } catch (e) {}
+    var mine = asked && Date.now() - asked < 36e5;
+    return fx("/auth/v1/user", {}, true).then(function (u) {
+      session.email = u.email || "";
+      if (!mine && !window.confirm("Sign in to BillingReceipts as " + (session.email || "this account") + "?\n\nOnly continue if this is your email address.")) { session = null; wr(null); return; }
+      try { localStorage.removeItem("br.auth.pending"); } catch (e) {}
+      wr(session);
+    }).catch(function () { session = null; wr(null); });
   }
 
   function refresh() {
@@ -61,6 +69,7 @@
     signedIn: function () { return !!session; },
     sendLink: function (email) {
       var back = location.origin + location.pathname;
+      try { localStorage.setItem("br.auth.pending", String(Date.now())); } catch (e) {}
       return fx("/auth/v1/otp?redirect_to=" + encodeURIComponent(back), { method: "POST", body: JSON.stringify({ email: email, create_user: true }) });
     },
     signOut: function () {
