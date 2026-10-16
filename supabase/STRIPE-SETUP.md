@@ -1,7 +1,7 @@
 # Turning on Pro payments (do it in TEST mode first)
 
 1. Stripe dashboard, toggle **Test mode** on. Product catalog > Add product "BillingReceipts Pro":
-   one recurring price $9.00 / month and one $79.00 / year. Copy both price IDs (price_...).
+   one recurring price $5.00 / month and one $39.00 / year. Copy both price IDs (price_...).
 2. Supabase SQL Editor: run `supabase/stripe-columns.sql`.
 3. Supabase > Edge Functions: create three functions with these names and paste each index.ts:
    `create-checkout`, `billing-portal`, `stripe-webhook` (each file is self-contained; paste the whole file. If the
