@@ -2,7 +2,7 @@
 <html lang="en" data-pro="live">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://vbhcpaidilscgrhhbpno.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://vbhcpaidilscgrhhbpno.supabase.co https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Privacy | BillingReceipts</title>
@@ -25,6 +25,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/assets/style.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Y9W86WRY0K"></script>
+<script src="/assets/gtag.js" async></script>
 
 </head>
 <body>
@@ -49,7 +51,7 @@
 <h2>The generator</h2><p>The invoice and receipt generator runs in your browser. If you don’t sign in, the details you type are not sent to our servers.</p>
 <h2>Accounts</h2><p>You can use the generator without an account, and nothing you type leaves your browser. If you choose to sign in, we store your email address and the invoices, receipts and clients you save, so you can open them on other devices. We use Supabase to provide sign-in and storage. Saved documents are visible only to your account. Sign out any time, and delete a saved document to remove it.</p>
 <h2>Payments</h2><p>If you buy Pro, Stripe handles the payment, and cancellation and refund terms are in our <a href="/terms/">Terms</a>. We never see or store your card details. We store your Stripe customer and subscription IDs so we know which plan you’re on.</p>
-<h2>Cookies and browser storage</h2><p>We use your browser’s local storage to keep documents you save without an account and to keep you signed in. Clearing this site’s data removes them. If we add analytics, we will list the provider here and describe what it collects.</p>
+<h2>Cookies and browser storage</h2><p>We use your browser’s local storage to keep documents you save without an account and to keep you signed in. Clearing this site’s data removes them. We use Google Analytics to count visits and see which pages are used. It sets cookies and collects usage data such as pages viewed, approximate location, browser and device type. We do not send it the contents of your invoices or receipts. You can block it with a browser extension or your browser’s privacy settings, or opt out with Google’s browser add-on.</p>
 <h2>Contact</h2><p>Questions about privacy, billing or your account: <a href="mailto:support@billingreceipts.com">support@billingreceipts.com</a>.</p></article>
 </main>
 <footer class="foot"><div class="wrap">
