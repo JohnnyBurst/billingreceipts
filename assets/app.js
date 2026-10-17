@@ -224,7 +224,7 @@
     var id = curId;
     if (online() && id && !/^[0-9a-f]{8}-[0-9a-f]{4}-/.test(id)) id = null;
     if (online() && !cdocs.some(function (x) { return x.id === id; }) && cdocs.length >= FREE_LIMIT) {
-      say("Free accounts sync up to " + FREE_LIMIT + " documents. Delete one to save another, or get unlimited sync with Pro (coming soon).", "How to get Pro"); return;
+      say("Free accounts sync up to " + FREE_LIMIT + " documents. Delete one to save another, or get unlimited sync with Pro" + (PRO_PUBLIC ? "." : " (coming soon).") + "", "How to get Pro"); return;
     }
     if (!id) id = online() ? uuid() : (Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
     curId = id; persist(id, copy(st));
@@ -240,7 +240,7 @@
 
   // Pro tools: saved clients, logo, footer removal (unlocked by plan = pro)
   var clients = [], LK = "br.logo.v1";
-  var PRO_PUBLIC = false; // flip to true when Pro goes on sale
+  var PRO_PUBLIC = document.documentElement.getAttribute("data-pro") === "live"; // set by PRO_LIVE in build.js
   function testFlag() {
     try { if (/[?&]pro=1/.test(location.search)) localStorage.setItem("br.pro.test", "1"); return localStorage.getItem("br.pro.test") === "1"; }
     catch (e) { return /[?&]pro=1/.test(location.search); }
@@ -252,14 +252,14 @@
     $("mgRow").hidden = !(online() && on);
     var hp = $("howPro"); if (hp) {
       hp.hidden = on;
-      $("howNote").textContent = showBuy ? (online() ? "You are signed in. Pick a plan below." : "Start with step 1.") : "Pro goes on sale soon. These are the steps.";
+      $("howNote").textContent = showBuy ? (online() ? "You are signed in. Pick a plan below." : "Start with step 1.") : (PRO_PUBLIC ? "" : "Pro goes on sale soon. ") + "These are the steps.";
       $("hpRow").hidden = !(showBuy && online() && !on);
     }
     ["f-client", "saveClient", "delClient", "f-logo", "rmLogo", "f-nofoot"].forEach(function (id) { $(id).disabled = !on; });
     $("proBox").classList.toggle("locked", !on);
     $("proBox").classList.toggle("on", on);
     $("proBadge").textContent = on ? "Active" : "Locked";
-    $("proNote").innerHTML = on ? "\u2713 Pro is active. These tools are ready to use." : (online() ? "These unlock with a Pro plan, coming soon. " : "Sign in to use these once Pro is available. ") + '<a href="#howPro">How to get Pro</a>';
+    $("proNote").innerHTML = on ? "\u2713 Pro is active. These tools are ready to use." : (online() ? (PRO_PUBLIC ? "These unlock with a Pro plan. " : "These unlock with a Pro plan, coming soon. ") : (PRO_PUBLIC ? "Sign in and get Pro to use these. " : "Sign in to use these once Pro is available. ")) + '<a href="#howPro">How to get Pro</a>';
     renderClients(); renderSheet();
   }
   function renderClients() {
