@@ -50,7 +50,7 @@
 <main id="main" class="wrap">
 
 
-<script type="application/json" id="preset">{"type":"receipt","from":"Tom Alvarez (Seller)","fromAddr":"","to":"Kim Okafor (Buyer)","toAddr":"","num":"SALE-001","tax":0,"method":"Cash","items":[{"d":"2014 Honda Civic LX, silver, VIN 1HGEXAMPLE0000000, 112,400 miles","q":1,"r":7200}],"notes":"Vehicle sold as is, with no warranty. Title transfer to be completed separately."}</script>
+<script type="application/json" id="preset">{"type":"receipt","from":"Tom Alvarez (Seller)","fromAddr":"","to":"Kim Okafor (Buyer)","toAddr":"","num":"SALE-001","tax":0,"method":"Cash","vehicle":{"year":"2014","make":"Honda","model":"Civic LX","vin":"1HGEXAMPLE0000000","price":7200},"notes":"Vehicle sold as is, with no warranty. Title transfer to be completed separately."}</script>
 <div class="work" id="generator">
   <div class="panel">
     <div class="seg" role="group" aria-label="Document type">
@@ -76,8 +76,8 @@
         <label for="f-tax">Sales tax %<input id="f-tax" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label>
       </div>
     </fieldset>
-    <fieldset><legend>Line items</legend>
-      <div class="hdr"><span>Description</span><span>Qty</span><span>Rate</span><span></span></div>
+    <fieldset><legend id="itemsLegend">Line items</legend>
+      <div class="hdr" id="itemsHdr"><span>Description</span><span>Qty</span><span>Rate</span><span></span></div>
       <div id="items"></div>
       <div><button type="button" class="btn" id="addItem">Add line</button></div>
     </fieldset>
@@ -123,7 +123,7 @@
 </div>
 <section class="s"><div class="cols">
   <div><div class="sh2"><h2>What to include</h2></div><ul class="list"><li>Buyer and seller names and contact details</li><li>Vehicle year, make, model, color, and VIN</li><li>Odometer reading at the time of sale</li><li>Sale price and date, and how it was paid</li><li>Whether the car is sold as is</li></ul></div>
-  <div><div class="sh2"><h2>Tips</h2></div><ul class="list"><li>Complete the title transfer and any bill of sale your state requires. A receipt alone is not enough.</li><li>Both parties should keep a signed copy.</li><li>Put the VIN in the description line.</li></ul></div>
+  <div><div class="sh2"><h2>Tips</h2></div><ul class="list"><li>Complete the title transfer and any bill of sale your state requires. A receipt alone is not enough.</li><li>Both parties should keep a signed copy.</li><li>Double-check the VIN against the title and the car itself.</li></ul></div>
 </div></section>
 <section class="s"><div class="sh2"><h2>Questions</h2></div><details><summary>Is a receipt the same as a bill of sale?</summary><p>Not always. A bill of sale is a more formal document, and some states require one or a specific form. Check your motor vehicles department.</p></details>
 <details><summary>Should I write 'as is'?</summary><p>If you are selling without a warranty, say so clearly in the notes. Both sides should be able to see it.</p></details></section>

@@ -36,6 +36,14 @@
       txt(String(s).toUpperCase(), x, yy);
     }
     function tableHeader(yy) {
+      if (st.vehicle) {
+        label("Vehicle", M, yy);
+        doc.setFont("courier", "normal"); doc.setFontSize(8); doc.setTextColor(MUTE[0], MUTE[1], MUTE[2]);
+        txt("AMOUNT", R, yy, { align: "right" });
+        doc.setDrawColor(INK[0], INK[1], INK[2]); doc.setLineWidth(1);
+        doc.line(M, yy + 6, R, yy + 6);
+        return yy + 22;
+      }
       label("Description", M, yy);
       doc.setFont("courier", "normal"); doc.setFontSize(8); doc.setTextColor(MUTE[0], MUTE[1], MUTE[2]);
       txt("QTY", 400, yy, { align: "right" }); txt("RATE", 478, yy, { align: "right" }); txt("AMOUNT", R, yy, { align: "right" });
@@ -78,6 +86,20 @@
 
     // Table
     y = tableHeader(maxY + 26);
+    if (st.vehicle) {
+      var vv = st.vehicle;
+      [["Year", vv.year], ["Make", vv.make], ["Model", vv.model], ["VIN", vv.vin]].forEach(function (r) {
+        doc.setFont("courier", "normal"); doc.setFontSize(8); doc.setTextColor(MUTE[0], MUTE[1], MUTE[2]);
+        txt(String(r[0]).toUpperCase(), M, y);
+        doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(INK[0], INK[1], INK[2]);
+        txt(String(r[1] || ""), M + 70, y);
+        y += 18;
+      });
+      doc.setDrawColor(LINE[0], LINE[1], LINE[2]); doc.setLineWidth(0.5); doc.line(M, y - 8, R, y - 8);
+      doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(INK[0], INK[1], INK[2]);
+      txt("Price", M, y + 6); txt(money(+vv.price || 0), R, y + 6, { align: "right" });
+      y += 28;
+    } else
     st.items.forEach(function (it) {
       var q = +it.q || 0, r = +it.r || 0;
       var lines = doc.splitTextToSize(clean(it.d || "Item"), 290);

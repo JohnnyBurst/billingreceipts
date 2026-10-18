@@ -20,6 +20,7 @@
       var p = JSON.parse(pe.textContent);
       ["type", "from", "fromAddr", "to", "toAddr", "num", "tax", "method", "notes"].forEach(function (k) { if (p[k] != null) st[k] = p[k]; });
       if (p.items) st.items = p.items.map(function (i) { return { d: i.d, q: i.q, r: i.r }; });
+      if (p.vehicle) { st.vehicle = { year: p.vehicle.year || "", make: p.vehicle.make || "", model: p.vehicle.model || "", vin: p.vehicle.vin || "", price: p.vehicle.price == null ? "" : p.vehicle.price }; vehItems(); }
     }
   } catch (e) {}
 
@@ -29,8 +30,28 @@
   function logoOk() { return proOn && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+\/=]+$/.test(st.logo || "") && st.logoW > 0; }
   function pdfState() { var s = Object.assign({}, st); if (!logoOk()) s.logo = ""; s.noFoot = !!(proOn && st.noFoot); return s; }
 
+  function vehItems() { st.items = [{ d: "Vehicle", q: 1, r: +st.vehicle.price || 0 }]; }
+  var VEH = [["year", "Year", "text", "numeric"], ["make", "Make", "text", ""], ["model", "Model", "text", ""], ["vin", "VIN", "text", ""], ["price", "Price ($)", "number", "decimal"]];
+
   function renderItems() {
     var box = $("items"); box.innerHTML = "";
+    var veh = !!st.vehicle;
+    if ($("itemsHdr")) $("itemsHdr").hidden = veh;
+    $("addItem").parentNode.hidden = veh;
+    if ($("itemsLegend")) $("itemsLegend").textContent = veh ? "Vehicle" : "Line items";
+    if (veh) {
+      var g = document.createElement("div"); g.className = "grid2";
+      VEH.forEach(function (f) {
+        var l = document.createElement("label"); l.setAttribute("for", "v-" + f[0]); l.appendChild(document.createTextNode(f[1]));
+        var inp = document.createElement("input"); inp.id = "v-" + f[0]; inp.type = f[2]; inp.autocomplete = "off"; inp.value = st.vehicle[f[0]];
+        if (f[2] === "number") { inp.min = "0"; inp.step = "any"; }
+        if (f[3]) inp.inputMode = f[3];
+        if (f[0] === "vin") { inp.maxLength = 17; inp.style.textTransform = "uppercase"; }
+        inp.addEventListener("input", function () { st.vehicle[f[0]] = f[0] === "vin" ? inp.value.toUpperCase() : inp.value; vehItems(); renderSheet(); });
+        l.appendChild(inp); g.appendChild(l);
+      });
+      box.appendChild(g); return;
+    }
     st.items.forEach(function (it, idx) {
       var row = document.createElement("div"); row.className = "item";
       row.innerHTML = '<input aria-label="Description, line ' + (idx + 1) + '" value="' + esc(it.d) + '" data-k="d">' +
@@ -53,13 +74,20 @@
       var q = +i.q || 0, r = +i.r || 0;
       return "<tr><td>" + esc(i.d || "Item") + "</td><td>" + q + "</td><td>" + P.money(r) + "</td><td>" + P.money(q * r) + "</td></tr>";
     }).join("");
+    var head = "<tr><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>";
+    if (st.vehicle) {
+      var v = st.vehicle;
+      head = "<tr><th colspan=\"2\">Vehicle</th><th></th><th>Amount</th></tr>";
+      rows = [["Year", v.year], ["Make", v.make], ["Model", v.model], ["VIN", v.vin]].map(function (x) { return '<tr><td colspan="3"><span style="opacity:.65">' + x[0] + "</span> &nbsp; " + esc(x[1] || "") + "</td><td></td></tr>"; }).join("") +
+        '<tr><td colspan="3"><b>Price</b></td><td>' + P.money(+v.price || 0) + "</td></tr>";
+    }
     $("sheet").innerHTML =
       '<div class="stamp"' + (rc ? "" : " hidden") + ">PAID</div>" +
       '<div class="sh"><div>' + (lg ? '<img class="logo" alt="" src="' + st.logo + '">' : "") + '<div class="kind">' + (rc ? "Receipt" : "Invoice") + "</div></div>" +
       '<div class="num"><div><span>No.</span> ' + esc(st.num) + "</div><div><span>Date</span> " + esc(P.fdate(st.date)) + "</div>" +
       (rc ? "<div><span>Paid by</span> " + esc(st.method) + "</div>" : "<div><span>Due</span> " + esc(P.fdate(st.due)) + "</div>") + "</div></div>" +
       '<div class="parties"><div><b>From</b>' + esc(st.from) + "<br>" + esc(st.fromAddr) + "</div><div><b>" + (rc ? "Received from" : "Bill to") + "</b>" + esc(st.to) + "<br>" + esc(st.toAddr) + "</div></div>" +
-      '<div class="tbl"><table><thead><tr><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead><tbody>' + rows + "</tbody></table></div>" +
+      '<div class="tbl"><table><thead>' + head + '</thead><tbody>' + rows + "</tbody></table></div>" +
       '<div class="totals"><div><span>Subtotal</span><span>' + P.money(t.sub) + "</span></div>" +
       ((+st.tax) ? "<div><span>Tax (" + (+st.tax) + "%)</span><span>" + P.money(t.tax) + "</span></div>" : "") +
       '<div class="grand"><span>' + (rc ? "Total paid" : "Total due") + "</span><span>" + P.money(t.total) + "</span></div></div>" +
@@ -110,7 +138,8 @@
     L.push(""); L.push("From: " + st.from + (st.fromAddr ? ", " + st.fromAddr : ""));
     L.push((rc ? "Received from: " : "Bill to: ") + st.to + (st.toAddr ? ", " + st.toAddr : ""));
     L.push("");
-    st.items.forEach(function (i) { var q = +i.q || 0, r = +i.r || 0; L.push((i.d || "Item") + " | " + q + " x " + P.money(r) + " = " + P.money(q * r)); });
+    if (st.vehicle) { var v = st.vehicle; L.push("Year: " + v.year); L.push("Make: " + v.make); L.push("Model: " + v.model); L.push("VIN: " + v.vin); L.push("Price: " + P.money(+v.price || 0)); }
+    else st.items.forEach(function (i) { var q = +i.q || 0, r = +i.r || 0; L.push((i.d || "Item") + " | " + q + " x " + P.money(r) + " = " + P.money(q * r)); });
     L.push(""); L.push("Subtotal: " + P.money(t.sub));
     if (+st.tax) L.push("Tax (" + (+st.tax) + "%): " + P.money(t.tax));
     L.push((rc ? "Total paid: " : "Total due: ") + P.money(t.total));

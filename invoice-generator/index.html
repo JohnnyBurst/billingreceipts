@@ -75,8 +75,8 @@
         <label for="f-tax">Sales tax %<input id="f-tax" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label>
       </div>
     </fieldset>
-    <fieldset><legend>Line items</legend>
-      <div class="hdr"><span>Description</span><span>Qty</span><span>Rate</span><span></span></div>
+    <fieldset><legend id="itemsLegend">Line items</legend>
+      <div class="hdr" id="itemsHdr"><span>Description</span><span>Qty</span><span>Rate</span><span></span></div>
       <div id="items"></div>
       <div><button type="button" class="btn" id="addItem">Add line</button></div>
     </fieldset>
