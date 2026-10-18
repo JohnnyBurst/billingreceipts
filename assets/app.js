@@ -20,7 +20,7 @@
       var p = JSON.parse(pe.textContent);
       ["type", "from", "fromAddr", "to", "toAddr", "num", "tax", "method", "notes"].forEach(function (k) { if (p[k] != null) st[k] = p[k]; });
       if (p.items) st.items = p.items.map(function (i) { return { d: i.d, q: i.q, r: i.r }; });
-      if (p.vehicle) { st.vehicle = { year: p.vehicle.year || "", make: p.vehicle.make || "", model: p.vehicle.model || "", vin: p.vehicle.vin || "", price: p.vehicle.price == null ? "" : p.vehicle.price }; vehItems(); }
+      if (p.vehicle) { st.vehicle = { year: p.vehicle.year || "", make: p.vehicle.make || "", model: p.vehicle.model || "", vin: p.vehicle.vin || "", odometer: p.vehicle.odometer == null ? "" : p.vehicle.odometer, price: p.vehicle.price == null ? "" : p.vehicle.price }; vehItems(); }
     }
   } catch (e) {}
 
@@ -31,7 +31,7 @@
   function pdfState() { var s = Object.assign({}, st); if (!logoOk()) s.logo = ""; s.noFoot = !!(proOn && st.noFoot); return s; }
 
   function vehItems() { st.items = [{ d: "Vehicle", q: 1, r: +st.vehicle.price || 0 }]; }
-  var VEH = [["year", "Year", "text", "numeric"], ["make", "Make", "text", ""], ["model", "Model", "text", ""], ["vin", "VIN", "text", ""], ["price", "Price ($)", "number", "decimal"]];
+  var VEH = [["year", "Year", "text", "numeric"], ["make", "Make", "text", ""], ["model", "Model", "text", ""], ["vin", "VIN", "text", ""], ["odometer", "Odometer (miles)", "text", "numeric"], ["price", "Price ($)", "number", "decimal"]];
 
   function renderItems() {
     var box = $("items"); box.innerHTML = "";
@@ -78,7 +78,7 @@
     if (st.vehicle) {
       var v = st.vehicle;
       head = "<tr><th colspan=\"2\">Vehicle</th><th></th><th>Amount</th></tr>";
-      rows = [["Year", v.year], ["Make", v.make], ["Model", v.model], ["VIN", v.vin]].map(function (x) { return '<tr><td colspan="3"><span style="opacity:.65">' + x[0] + "</span> &nbsp; " + esc(x[1] || "") + "</td><td></td></tr>"; }).join("") +
+      rows = [["Year", v.year], ["Make", v.make], ["Model", v.model], ["VIN", v.vin]].concat(v.odometer == null ? [] : [["Odometer", P.odo(v.odometer)]]).map(function (x) { return '<tr><td colspan="3"><span style="opacity:.65">' + x[0] + "</span> &nbsp; " + esc(x[1] || "") + "</td><td></td></tr>"; }).join("") +
         '<tr><td colspan="3"><b>Price</b></td><td>' + P.money(+v.price || 0) + "</td></tr>";
     }
     $("sheet").innerHTML =
@@ -138,7 +138,7 @@
     L.push(""); L.push("From: " + st.from + (st.fromAddr ? ", " + st.fromAddr : ""));
     L.push((rc ? "Received from: " : "Bill to: ") + st.to + (st.toAddr ? ", " + st.toAddr : ""));
     L.push("");
-    if (st.vehicle) { var v = st.vehicle; L.push("Year: " + v.year); L.push("Make: " + v.make); L.push("Model: " + v.model); L.push("VIN: " + v.vin); L.push("Price: " + P.money(+v.price || 0)); }
+    if (st.vehicle) { var v = st.vehicle; L.push("Year: " + v.year); L.push("Make: " + v.make); L.push("Model: " + v.model); L.push("VIN: " + v.vin); if (v.odometer != null) L.push("Odometer: " + P.odo(v.odometer)); L.push("Price: " + P.money(+v.price || 0)); }
     else st.items.forEach(function (i) { var q = +i.q || 0, r = +i.r || 0; L.push((i.d || "Item") + " | " + q + " x " + P.money(r) + " = " + P.money(q * r)); });
     L.push(""); L.push("Subtotal: " + P.money(t.sub));
     if (+st.tax) L.push("Tax (" + (+st.tax) + "%): " + P.money(t.tax));

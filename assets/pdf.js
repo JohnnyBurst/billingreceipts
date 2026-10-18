@@ -16,6 +16,7 @@
     var tax = sub * ((+st.tax || 0) / 100);
     return { sub: sub, tax: tax, total: sub + tax };
   }
+  function odo(v) { v = String(v == null ? "" : v).trim(); if (/^[0-9,]+$/.test(v)) { var n = +v.replace(/,/g, ""); return n.toLocaleString("en-US") + " miles"; } return v; }
   function fdate(v) {
     if (!v) return "";
     var p = String(v).split("-");
@@ -88,7 +89,7 @@
     y = tableHeader(maxY + 26);
     if (st.vehicle) {
       var vv = st.vehicle;
-      [["Year", vv.year], ["Make", vv.make], ["Model", vv.model], ["VIN", vv.vin]].forEach(function (r) {
+      [["Year", vv.year], ["Make", vv.make], ["Model", vv.model], ["VIN", vv.vin]].concat(vv.odometer == null ? [] : [["Odometer", odo(vv.odometer)]]).forEach(function (r) {
         doc.setFont("courier", "normal"); doc.setFontSize(8); doc.setTextColor(MUTE[0], MUTE[1], MUTE[2]);
         txt(String(r[0]).toUpperCase(), M, y);
         doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(INK[0], INK[1], INK[2]);
@@ -150,7 +151,7 @@
     return doc;
   }
 
-  var api = { buildPdf: buildPdf, totals: totals, money: money, fdate: fdate, clean: clean };
+  var api = { odo: odo, buildPdf: buildPdf, totals: totals, money: money, fdate: fdate, clean: clean };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   root.BRPdf = api;
 })(typeof window !== "undefined" ? window : globalThis);
