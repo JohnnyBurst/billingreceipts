@@ -24,6 +24,17 @@
     }
   } catch (e) {}
 
+  // Conversion events (GA4). Sends only the page slug, document type and plan, never document contents.
+  function ev(n, o) { try { if (window.gtag) window.gtag("event", n, o || {}); } catch (e) {} }
+  var pageSlug = location.pathname.replace(/\/$/, "").split("/").pop() || "home";
+  var EVMAP = { pdfBtn: "pdf_download", printBtn: "print_document", copyBtn: "copy_text", saveBtn: "save_document", proCta: "get_pro_click", mgBtn: "manage_billing", upM: "begin_checkout", hpM: "begin_checkout", upY: "begin_checkout", hpY: "begin_checkout" };
+  document.addEventListener("click", function (e) {
+    var t = e.target && e.target.closest ? e.target.closest("button,a") : null; if (!t || !EVMAP[t.id]) return;
+    var o = { page: pageSlug, doc_type: st.type };
+    if (EVMAP[t.id] === "begin_checkout") o.plan = /Y$/.test(t.id) ? "year" : "month";
+    ev(EVMAP[t.id], o);
+  }, true);
+
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 
   var proOn = false;
