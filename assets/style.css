@@ -229,3 +229,12 @@ nav.links a{color:var(--band-ink);border:1px solid rgba(255,255,255,.5);border-r
 nav.links a:hover{background:rgba(255,255,255,.14);border-color:#fff;color:#fff}
 nav.links a.cta-nav{background:#fff;color:#0C1F52;border-color:#fff;font-weight:700}
 @media(max-width:480px){nav.links{gap:6px;font-size:13.5px}nav.links a{padding:6px 10px}}
+.toolbox{margin:24px 0 8px;display:grid;gap:18px;grid-template-columns:minmax(0,1fr)}
+.toolbox .fields{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.toolbox .fields label.chk{grid-column:1/-1}
+.result{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:6px}
+.result .rr{display:flex;justify-content:space-between;gap:16px;font-size:15px;padding-block:4px;border-bottom:1px solid var(--line)}
+.result .rr:last-child{border-bottom:0}
+.result .rr.grand{font-family:var(--font-display);font-size:20px;border-top:2px solid var(--ink);margin-top:4px;padding-top:10px}
+.result textarea{font-family:var(--font-mono);font-size:14px;resize:vertical}
+@media(max-width:560px){.toolbox .fields{grid-template-columns:1fr}}
