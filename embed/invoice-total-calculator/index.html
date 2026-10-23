@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow">
+<title>Invoice Total Calculator | BillingReceipts</title><link rel="canonical" href="https://billingreceipts.com/tools/invoice-total-calculator/">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/style.css"><style>body{background:transparent;padding:10px}.panel{box-shadow:none}.embed-credit{margin:10px 2px 0;font-size:12.5px;color:var(--ink-2)}</style></head>
+<body><h1 style="font-size:20px;margin:0 0 10px">Invoice Total Calculator</h1>
+<div class="panel toolbox" data-tool="invoice-total-calculator" style="margin:0"><div class="fields">
+      <label for="subtotal">Subtotal ($)<input id="subtotal" type="number" inputmode="decimal" min="0" step="any" value="2400"></label>
+      <label for="discount">Discount<input id="discount" type="number" inputmode="decimal" min="0" step="any" value="0"></label>
+      <label for="dtype">Discount type<select id="dtype"><option value="pct">Percent (%)</option><option value="amt">Dollar amount ($)</option></select></label>
+      <label for="tax">Sales tax (%)<input id="tax" type="number" inputmode="decimal" min="0" step="any" value="8.25"></label>
+      <label for="shipping">Shipping or fees ($)<input id="shipping" type="number" inputmode="decimal" min="0" step="any" value="0"></label>
+      <label for="deposit">Deposit already paid ($)<input id="deposit" type="number" inputmode="decimal" min="0" step="any" value="0"></label></div><div class="result" id="out" aria-live="polite"></div></div>
+<p class="embed-credit">Free tool by <a href="https://billingreceipts.com/tools/invoice-total-calculator/" target="_blank" rel="noopener">BillingReceipts</a></p>
+<script src="/assets/tools.js"></script></body></html>

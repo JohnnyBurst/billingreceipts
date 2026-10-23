@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow">
+<title>Late Fee Calculator | BillingReceipts</title><link rel="canonical" href="https://billingreceipts.com/tools/late-fee-calculator/">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/style.css"><style>body{background:transparent;padding:10px}.panel{box-shadow:none}.embed-credit{margin:10px 2px 0;font-size:12.5px;color:var(--ink-2)}</style></head>
+<body><h1 style="font-size:20px;margin:0 0 10px">Late Fee Calculator</h1>
+<div class="panel toolbox" data-tool="late-fee-calculator" style="margin:0"><div class="fields">
+      <label for="amount">Invoice amount ($)<input id="amount" type="number" inputmode="decimal" min="0" step="any" value="1500"></label>
+      <label for="type">Fee type<select id="type"><option value="monthly">Percent per month (prorated by day)</option><option value="once">Percent, one time</option><option value="flat">Flat fee, one time</option></select></label>
+      <label for="rate">Rate (% or $)<input id="rate" type="number" inputmode="decimal" min="0" step="any" value="1.5"></label>
+      <label for="days">Days overdue<input id="days" type="number" inputmode="decimal" min="0" step="any" value="20"></label>
+      <label for="grace">Grace period (days)<input id="grace" type="number" inputmode="decimal" min="0" step="any" value="0"></label></div><div class="result" id="out" aria-live="polite"></div></div>
+<p class="embed-credit">Free tool by <a href="https://billingreceipts.com/tools/late-fee-calculator/" target="_blank" rel="noopener">BillingReceipts</a></p>
+<script src="/assets/tools.js"></script></body></html>

@@ -18,6 +18,13 @@
   function parse(v) { var p = String(v).split("-"); return p.length === 3 ? new Date(+p[0], +p[1] - 1, +p[2], 12) : null; }
   function fmt(d) { return d.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" }); }
 
+  Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"), function (b) {
+    b.addEventListener("click", function () {
+      var ta = document.getElementById(b.getAttribute("data-copy")), m = document.getElementById("copied-msg");
+      var done = function () { if (m) m.textContent = "Copied."; };
+      try { navigator.clipboard.writeText(ta.value).then(done, function () { ta.select(); document.execCommand("copy"); done(); }); } catch (e) { ta.select(); try { document.execCommand("copy"); done(); } catch (e2) {} }
+    });
+  });
   var calc = {
     "late-fee-calculator": function () {
       var amt = n("amount"), rate = n("rate"), type = $("type").value, late = Math.max(0, n("days") - n("grace")), fee = 0;

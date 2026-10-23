@@ -145,7 +145,7 @@
     for (var p = 1; p <= n; p++) {
       doc.setPage(p);
       doc.setFont("courier", "normal"); doc.setFontSize(8); doc.setTextColor(MUTE[0], MUTE[1], MUTE[2]);
-      if (!st.noFoot) doc.text("Created with BillingReceipts - billingreceipts.com", M, H - 36);
+      if (!st.noFoot) { var ft = "Created with BillingReceipts - billingreceipts.com"; if (doc.textWithLink) doc.textWithLink(ft, M, H - 36, { url: "https://billingreceipts.com/?ref=pdf" }); else doc.text(ft, M, H - 36); }
       doc.text("Page " + p + " of " + n, R, H - 36, { align: "right" });
     }
     return doc;

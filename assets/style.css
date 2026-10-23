@@ -238,3 +238,4 @@ nav.links a.cta-nav{background:#fff;color:#0C1F52;border-color:#fff;font-weight:
 .result .rr.grand{font-family:var(--font-display);font-size:20px;border-top:2px solid var(--ink);margin-top:4px;padding-top:10px}
 .result textarea{font-family:var(--font-mono);font-size:14px;resize:vertical}
 @media(max-width:560px){.toolbox .fields{grid-template-columns:1fr}}
+.code{font-family:var(--font-mono);font-size:12.5px;resize:vertical}

@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow">
+<title>Invoice Number Generator | BillingReceipts</title><link rel="canonical" href="https://billingreceipts.com/tools/invoice-number-generator/">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/style.css"><style>body{background:transparent;padding:10px}.panel{box-shadow:none}.embed-credit{margin:10px 2px 0;font-size:12.5px;color:var(--ink-2)}</style></head>
+<body><h1 style="font-size:20px;margin:0 0 10px">Invoice Number Generator</h1>
+<div class="panel toolbox" data-tool="invoice-number-generator" style="margin:0"><div class="fields">
+      <label for="prefix">Prefix<input id="prefix" value="INV" autocomplete="off" maxlength="12"></label>
+      <label for="startNum">Start at<input id="startNum" type="number" inputmode="decimal" min="0" step="any" value="1001" step="1"></label>
+      <label for="count">How many<input id="count" type="number" inputmode="decimal" min="0" step="any" value="10" step="1" max="200"></label>
+      <label for="pad">Digits<select id="pad"><option value="0">No padding (1, 2, 3)</option><option value="3">3 digits (001)</option><option value="4" selected>4 digits (0001)</option><option value="5">5 digits (00001)</option></select></label>
+      <label for="datefmt">Add a date<select id="datefmt"><option value="none">No date</option><option value="year">Year (2026)</option><option value="ym">Year and month (2026-10)</option></select></label>
+      <label for="sep">Separator<select id="sep"><option value="-">Hyphen (INV-1001)</option><option value="">None (INV1001)</option><option value="/">Slash (INV/1001)</option></select></label></div><div class="result" id="out" aria-live="polite"></div></div>
+<p class="embed-credit">Free tool by <a href="https://billingreceipts.com/tools/invoice-number-generator/" target="_blank" rel="noopener">BillingReceipts</a></p>
+<script src="/assets/tools.js"></script></body></html>

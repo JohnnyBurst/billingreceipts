@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow">
+<title>Invoice Due Date Calculator | BillingReceipts</title><link rel="canonical" href="https://billingreceipts.com/tools/invoice-due-date-calculator/">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/assets/style.css"><style>body{background:transparent;padding:10px}.panel{box-shadow:none}.embed-credit{margin:10px 2px 0;font-size:12.5px;color:var(--ink-2)}</style></head>
+<body><h1 style="font-size:20px;margin:0 0 10px">Invoice Due Date Calculator</h1>
+<div class="panel toolbox" data-tool="invoice-due-date-calculator" style="margin:0"><div class="fields">
+      <label for="start">Invoice date<input id="start" type="date"></label>
+      <label for="terms">Payment terms<select id="terms"><option value="0">Due on receipt</option><option value="7">Net 7</option><option value="10">Net 10</option><option value="15">Net 15</option><option value="30" selected>Net 30</option><option value="45">Net 45</option><option value="60">Net 60</option><option value="90">Net 90</option><option value="custom">Custom number of days</option></select></label>
+      <label for="custom">Custom days<input id="custom" type="number" inputmode="decimal" min="0" step="any" value="21"></label>
+      <label for="eom">Count from<select id="eom"><option value="invoice">Invoice date</option><option value="eom">End of the invoice month (EOM)</option></select></label>
+      <label class="chk" for="bday"><input id="bday" type="checkbox"> Move to the next business day if the due date is a weekend</label></div><div class="result" id="out" aria-live="polite"></div></div>
+<p class="embed-credit">Free tool by <a href="https://billingreceipts.com/tools/invoice-due-date-calculator/" target="_blank" rel="noopener">BillingReceipts</a></p>
+<script src="/assets/tools.js"></script></body></html>
